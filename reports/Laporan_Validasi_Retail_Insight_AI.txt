@@ -1,0 +1,111 @@
+LAPORAN VALIDASI RETAIL INSIGHT AI DASHBOARD
+========================================
+
+1.  IDENTITAS PROYEK Nama Proyek : Retail Insight AI Dashboard Dataset :
+    Online Retail.xlsx Alat bantu AI : IBM Bob Teknologi : Python, JSON,
+    HTML, Tailwind CSS, Vanilla JavaScript, Chart.js
+
+Tujuan proyek: Mengolah data transaksi online retail menjadi dashboard
+interaktif untuk membantu pengguna memahami performa penjualan,
+kontribusi produk dan negara, perilaku pelanggan, segmentasi RFM, serta
+pembatalan dan retur.
+
+2.  RUANG LINGKUP VALIDASI Validasi yang dilaporkan mencakup:
+
+-   Pemeriksaan struktur data JSON dan komponen dashboard.
+-   Pemeriksaan integrasi data produk untuk mendukung filter produk.
+-   Pemeriksaan perhitungan KPI utama.
+-   Pengujian filter tanggal, negara, produk, dan segmen pelanggan,
+    termasuk kombinasinya.
+-   Pemeriksaan penanganan transaksi tanpa CustomerID.
+-   Pemeriksaan integritas data pembatalan dan laporan kualitas data.
+
+3.  HASIL AUDIT OTOMATIS Berdasarkan laporan hasil pengujian yang
+    dijalankan di IBM Bob:
+
+Audit Suite v3 - pemeriksaan struktur dan kode: - Hasil: 48 dari 48
+pemeriksaan PASS. - FAIL: 0.
+
+Audit Suite v4 - pengujian kombinasi filter: - Hasil: 79 dari 79
+pemeriksaan PASS. - Mencakup 16 kelompok pengujian. - FAIL: 0.
+
+Total hasil pengujian: - 127 pemeriksaan PASS dari 127 pemeriksaan. - 0
+FAIL.
+
+Catatan: Angka hasil audit pada laporan ini merupakan hasil yang
+dilaporkan oleh IBM Bob dari eksekusi audit_v3.py dan
+audit_v4_filter_combinations.py. Hasil tersebut bukan pernyataan bahwa
+pemeriksaan independen oleh pihak lain telah dilakukan.
+
+4.  HASIL VALIDASI KPI GLOBAL Nilai KPI yang dilaporkan telah dicocokkan
+    dengan dataset menggunakan aturan pengolahan proyek:
+
+-   Total Revenue : GBP 10,642,110.80
+-   Total Transactions : 19,960 invoice unik
+-   Total Quantity Sold : 5,572,420
+-   Average Order Value : GBP 533.17
+-   Unique Customers : 4,338
+
+Aturan ringkas: - Revenue dihitung dari Quantity dikalikan UnitPrice
+pada transaksi penjualan yang memenuhi kriteria. - Total Transactions
+dihitung berdasarkan InvoiceNo unik. - AOV dihitung dari Total Revenue
+dibagi jumlah transaksi unik. - CustomerID kosong tidak dimasukkan ke
+penghitungan pelanggan unik dan segmentasi RFM.
+
+5.  PENANGANAN CUSTOMERID KOSONG Berdasarkan hasil verifikasi yang
+    dilaporkan:
+
+-   Invoice tanpa CustomerID : 1,428
+-   Revenue transaksi tersebut: GBP 1,754,901.91
+-   Revenue dari transaksi tanpa dan dengan CustomerID tetap membentuk
+    Total Revenue KPI.
+-   Transaksi tanpa CustomerID tetap dihitung dalam metrik penjualan.
+-   Transaksi tanpa CustomerID tidak dihitung sebagai pelanggan unik dan
+    tidak dimasukkan ke segmentasi RFM.
+
+6.  PEMERIKSAAN KUALITAS DATA DAN PEMBATALAN Laporan proyek membedakan
+    jumlah baris pembatalan sebelum dan sesudah deduplikasi:
+
+-   Cancellation rows sebelum deduplikasi : 9,288
+-   Cancellation rows setelah deduplikasi : 9,251
+
+Perbedaan tersebut merupakan perbedaan tahap pengolahan data, bukan dua
+angka untuk dijumlahkan.
+
+Dashboard juga memberikan keterangan bahwa cancellation rate tertentu
+ditampilkan secara global ketika ruang lingkup filter tidak mendukung
+perhitungan yang lebih terperinci.
+
+7.  FILE PROYEK TERKAIT File utama dashboard:
+
+-   index.html
+-   style.css
+-   script.js
+-   data.json
+
+File Python dan audit: - prepare_data.py - analyze_retail.py -
+_check_data.py - audit_v3.py - audit_v4_filter_combinations.py -
+reconcile.py - audit.py dan audit_v2.py (arsip pengembangan, jika
+diperlukan)
+
+Dokumentasi: - README.md
+
+Dataset sumber: - Online Retail.xlsx
+
+Keterangan: Tidak semua file Python harus dijalankan untuk membuka
+dashboard. File persiapan data dan audit digunakan untuk proses
+pengolahan atau pengujian sesuai fungsi masing-masing. Pastikan
+instruktur menerima file sesuai ketentuan submission.
+
+8.  KESIMPULAN Berdasarkan laporan pengujian IBM Bob, Retail Insight AI
+    Dashboard memperoleh hasil 127/127 PASS dan 0 FAIL pada Audit Suite
+    v3 dan v4. KPI global dan penanganan transaksi tanpa CustomerID juga
+    dilaporkan telah diverifikasi.
+
+Dengan hasil tersebut, proyek dinyatakan telah menyelesaikan rangkaian
+pengembangan dan pengujian yang dilaporkan. Sebelum penyerahan,
+dashboard tetap perlu dibuka melalui local server untuk pemeriksaan
+manual, termasuk memastikan data.json berhasil dimuat, visualisasi
+tampil, filter berfungsi, dan tidak terdapat error pada browser console.
+
+======================================== Akhir Laporan
