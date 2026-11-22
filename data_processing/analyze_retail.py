@@ -1,8 +1,18 @@
+from pathlib import Path
 import pandas as pd
 import json
 from datetime import datetime
 
-FILE = r'c:\Users\ACER\OneDrive\Desktop\IBM DATA\LATIHAN_1\Online Retail.xlsx'
+# Root directory repository
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Lokasi dataset
+FILE = BASE_DIR / "data" / "raw" / "Online Retail.xlsx"
+
+if not FILE.is_file():
+    raise FileNotFoundError(
+        f"Dataset tidak ditemukan: {FILE}"
+    )
 
 print("Loading dataset...")
 df = pd.read_excel(FILE, engine='openpyxl')

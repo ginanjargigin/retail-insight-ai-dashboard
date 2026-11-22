@@ -1,6 +1,18 @@
 import json
+from pathlib import Path
 
-with open('data.json', encoding='utf-8') as f:
+# Root directory repository
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Lokasi JSON hasil preprocessing
+DATA_FILE = BASE_DIR / "dashboard" / "data.json"
+
+if not DATA_FILE.is_file():
+    raise FileNotFoundError(
+        f"File JSON tidak ditemukan: {DATA_FILE}"
+    )
+
+with open(DATA_FILE, encoding='utf-8') as f:
     d = json.load(f)
 
 q = d['quality_report']
