@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Retail Insight Dashboard</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <!-- Custom styles -->
+  <link rel="stylesheet" href="style.css" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50:'#eef2ff', 100:'#e0e7ff', 500:'#6366f1', 600:'#4f46e5', 700:'#4338ca' },
+            surface: '#f8fafc',
+          },
+          fontFamily: { sans: ['"Inter"','system-ui','sans-serif'] }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="bg-slate-50 text-slate-800 min-h-screen font-sans">
+
+  <!-- ═══════════════════════════════════════════
+       HEADER
+  ═══════════════════════════════════════════ -->
+  <header class="bg-gradient-to-r from-indigo-700 to-indigo-500 text-white shadow-lg sticky top-0 z-50">
+    <div class="max-w-screen-2xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between gap-4 flex-wrap">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center text-xl font-bold">R</div>
+        <div>
+          <h1 class="text-lg font-bold leading-tight">Retail Insight Dashboard</h1>
+          <p class="text-indigo-200 text-xs hidden sm:block">Online Retail · Sales &amp; Customer Analytics</p>
+        </div>
+      </div>
+      <!-- Data quality badge -->
+      <div id="qualityBadge" class="text-xs bg-white/15 rounded-full px-3 py-1 hidden sm:flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
+        <span id="qualityText">Loading data…</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════
+       FILTER BAR
+  ═══════════════════════════════════════════ -->
+  <div class="bg-white border-b border-slate-200 shadow-sm sticky top-[64px] z-40">
+    <div class="max-w-screen-2xl mx-auto px-4 md:px-8 py-3 flex flex-wrap gap-3 items-end">
+
+      <!-- Date range -->
+      <div class="filter-group">
+        <label class="filter-label">From</label>
+        <input type="date" id="filterDateFrom" class="filter-input" />
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">To</label>
+        <input type="date" id="filterDateTo" class="filter-input" />
+      </div>
+
+      <!-- Country -->
+      <div class="filter-group">
+        <label class="filter-label">Country</label>
+        <select id="filterCountry" class="filter-input min-w-[140px]">
+          <option value="">All Countries</option>
+        </select>
+      </div>
+
+      <!-- Customer Segment -->
+      <div class="filter-group">
+        <label class="filter-label">Customer Segment</label>
+        <select id="filterSegment" class="filter-input min-w-[160px]">
+          <option value="">All Segments</option>
+        </select>
+      </div>
+
+      <!-- Product -->
+      <div class="filter-group">
+        <label class="filter-label">Product (Top 50)</label>
+        <select id="filterProduct" class="filter-input min-w-[200px]">
+          <option value="">All Products</option>
+        </select>
+      </div>
+
+      <!-- Reset -->
+      <button id="btnReset" class="ml-auto px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition-colors">
+        Reset Filters
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       MAIN CONTENT
+  ═══════════════════════════════════════════ -->
+  <main class="max-w-screen-2xl mx-auto px-4 md:px-8 py-6 space-y-8">
+
+    <!-- Loading overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center gap-3">
+      <div class="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+      <p class="text-slate-600 text-sm font-medium">Loading dashboard data…</p>
+    </div>
+
+    <!-- Error banner -->
+    <div id="errorBanner" class="hidden bg-red-50 border border-red-200 text-red-700 rounded-xl p-4 text-sm"></div>
+
+    <!-- ─── KPI CARDS ─── -->
+    <section aria-label="Key Performance Indicators">
+      <h2 class="section-title">Key Performance Indicators</h2>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div class="kpi-card">
+          <span class="kpi-icon bg-indigo-100 text-indigo-600">£</span>
+          <div>
+            <p class="kpi-label">Total Revenue</p>
+            <p class="kpi-value" id="kpiRevenue">—</p>
+            <p class="kpi-sub" id="kpiRevenueSub"></p>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-icon bg-sky-100 text-sky-600">#</span>
+          <div>
+            <p class="kpi-label">Total Transactions</p>
+            <p class="kpi-value" id="kpiTransactions">—</p>
+            <p class="kpi-sub" id="kpiTransactionsSub"></p>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-icon bg-emerald-100 text-emerald-600">Q</span>
+          <div>
+            <p class="kpi-label">Total Qty Sold</p>
+            <p class="kpi-value" id="kpiQty">—</p>
+            <p class="kpi-sub" id="kpiQtySub"></p>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-icon bg-amber-100 text-amber-600">Ø</span>
+          <div>
+            <p class="kpi-label">Avg Order Value</p>
+            <p class="kpi-value" id="kpiAov">—</p>
+            <p class="kpi-sub" id="kpiAovSub"></p>
+          </div>
+        </div>
+        <div class="kpi-card col-span-2 sm:col-span-1">
+          <span class="kpi-icon bg-rose-100 text-rose-600">👤</span>
+          <div>
+            <p class="kpi-label">Unique Customers</p>
+            <p class="kpi-value" id="kpiCustomers">—</p>
+            <p class="kpi-sub" id="kpiCustomersSub"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── MONTHLY TREND ─── -->
+    <section aria-label="Monthly Sales Trend">
+      <h2 class="section-title">Monthly Sales Trend</h2>
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3 class="chart-title">Revenue &amp; Transactions per Month</h3>
+          <span class="chart-badge" id="trendBadge">13 months</span>
+        </div>
+        <div class="chart-wrap h-72">
+          <canvas id="chartMonthly"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── COUNTRY + AOV ─── -->
+    <section aria-label="Revenue by Country">
+      <h2 class="section-title">Geographic Performance</h2>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3 class="chart-title">Revenue by Country (Top 10)</h3>
+          </div>
+          <div class="chart-wrap h-72">
+            <canvas id="chartCountry"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3 class="chart-title">Avg Order Value by Country (Top 10)</h3>
+          </div>
+          <div class="chart-wrap h-72">
+            <canvas id="chartCountryAov"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── TOP PRODUCTS ─── -->
+    <section aria-label="Top Products">
+      <h2 class="section-title">Product Performance</h2>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3 class="chart-title">Top 10 Products by Revenue</h3>
+          </div>
+          <div class="chart-wrap h-80">
+            <canvas id="chartProdRev"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3 class="chart-title">Top 10 Products by Quantity Sold</h3>
+          </div>
+          <div class="chart-wrap h-80">
+            <canvas id="chartProdQty"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── RFM SEGMENTATION ─── -->
+    <section aria-label="Customer Segmentation">
+      <h2 class="section-title">Customer Segmentation (RFM)</h2>
+      <p class="text-xs text-slate-500 mb-3">
+        Segmentasi berbasis skor RFM (Recency–Frequency–Monetary, kuintil 1–5). Hanya pelanggan dengan CustomerID digunakan (4.338 pelanggan). Saat filter aktif, jumlah pelanggan dan revenue disesuaikan; skor Avg RFM tetap menggunakan model global.
+      </p>
+      <!-- rfmFilterNote injected by JS (FIX 5) -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3 class="chart-title">Customer Count per Segment</h3>
+          </div>
+          <div class="chart-wrap h-72">
+            <canvas id="chartSegPie"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3 class="chart-title">Revenue Contribution per Segment</h3>
+          </div>
+          <div class="chart-wrap h-72">
+            <canvas id="chartSegRev"></canvas>
+          </div>
+        </div>
+      </div>
+      <!-- RFM Summary Table -->
+      <div class="chart-card mt-6 overflow-x-auto">
+        <div class="chart-header">
+          <h3 class="chart-title">RFM Segment Summary</h3>
+        </div>
+        <table class="w-full text-sm mt-2" id="rfmTable">
+          <thead>
+            <tr class="text-left border-b border-slate-200">
+              <th class="pb-2 font-semibold text-slate-600 pr-4">Segment</th>
+              <th class="pb-2 font-semibold text-slate-600 pr-4 text-right">Customers</th>
+              <th class="pb-2 font-semibold text-slate-600 pr-4 text-right">Avg Recency</th>
+              <th class="pb-2 font-semibold text-slate-600 pr-4 text-right">Avg Frequency</th>
+              <th class="pb-2 font-semibold text-slate-600 pr-4 text-right">Avg Monetary</th>
+              <th class="pb-2 font-semibold text-slate-600 text-right">Total Revenue</th>
+            </tr>
+          </thead>
+          <tbody id="rfmTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ─── CANCELLATION ANALYSIS ─── -->
+    <section aria-label="Cancellation and Return Analysis">
+      <h2 class="section-title">Cancellation &amp; Return Analysis</h2>
+      <!-- Cancel KPI strip -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+        <div class="kpi-card-sm">
+          <p class="kpi-label">Total Cancel Invoices</p>
+          <p class="kpi-value text-rose-600" id="cancelInvoices">—</p>
+        </div>
+        <div class="kpi-card-sm">
+          <p class="kpi-label">Total Return Value</p>
+          <p class="kpi-value text-rose-600" id="cancelValue">—</p>
+        </div>
+        <div class="kpi-card-sm">
+          <p class="kpi-label">Cancel Rate (Invoices)</p>
+          <p class="kpi-value text-amber-600" id="cancelRateInv">—</p>
+          <p class="text-xs text-slate-400 mt-1">Rate selalu dihitung secara global</p>
+        </div>
+        <div class="kpi-card-sm">
+          <p class="kpi-label">Cancel Rate (Rows)</p>
+          <p class="kpi-value text-amber-600" id="cancelRateRows">—</p>
+          <p class="text-xs text-slate-400 mt-1">Rate selalu dihitung secara global</p>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3 class="chart-title">Monthly Cancellations vs Normal Sales</h3>
+          <span class="chart-badge" id="cancelScopeBadge">All periods</span>
+        </div>
+        <div class="chart-wrap h-72">
+          <canvas id="chartCancel"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── DATA QUALITY ─── -->
+    <section aria-label="Data Quality Report">
+      <h2 class="section-title">Data Quality Report</h2>
+      <p class="text-xs text-slate-500 mb-3">Pipeline pembersihan data yang diterapkan pada Online Retail.xlsx sebelum analisis.</p>
+      <div class="chart-card">
+        <div id="qualityReport" class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-slate-200 mt-10 py-6 text-center text-xs text-slate-400">
+    <p>Retail Insight Dashboard · Dataset: Online Retail.xlsx · Built with Chart.js &amp; Tailwind CSS</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
