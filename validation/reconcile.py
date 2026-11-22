@@ -159,7 +159,7 @@ readme_ok = check_group("5. README DOCUMENTATION", readme_checks)
 v3_ok, v3_output = run_audit("audit_v3.py", r"PASSED:\s*48\s+FAILED:\s*0")
 v4_ok, v4_output = run_audit(
     "audit_v4_filter_combinations.py",
-    r"TOTAL:\s*79 PASS\s*/\s*0 FAIL out of 79 checks",
+    r"TOTAL:\s*79\s+PASS\s*/\s*0\s+FAIL\s+out of\s+79\s+checks",
 )
 
 print("\n[6. AUTOMATED AUDIT EXECUTION]")
