@@ -4,8 +4,6 @@
 
 Retail Insight AI Dashboard adalah proyek analisis data retail yang mengolah dataset **Online Retail** untuk menyajikan performa penjualan, kontribusi negara dan produk, segmentasi pelanggan menggunakan metode **RFM (Recency, Frequency, Monetary)**, serta informasi pembatalan transaksi. Proyek ini dikembangkan dengan bantuan **IBM Bob** dan menggabungkan pengolahan data Python dengan dashboard berbasis web.
 
-> **Catatan penting sebelum menjalankan:** Pada repository yang diperiksa, `dashboard/data.json` masih berupa file kosong (2 byte). Dashboard membutuhkan JSON hasil preprocessing yang valid agar KPI, grafik, dan filter dapat ditampilkan. Ganti file tersebut dengan hasil `prepare_data.py` sebelum menjalankan dashboard atau mengirimkan repository sebagai hasil final.
-
 ---
 
 ## 1. Tujuan Proyek
